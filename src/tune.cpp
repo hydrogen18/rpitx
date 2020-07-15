@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	dbg_setlevel(1);
 	bool NotKill=false;
   bool ppmSet = false;
-	float ppm=0.0;
+	float ppm = 0.0;
 	
   while(true)
 	{
@@ -114,6 +114,8 @@ int main(int argc, char* argv[])
 		clk->SetAdvancedPllMode(true);
 		if (ppmSet) {	//ppm is set else use ntp
 			clk->Setppm(ppm);
+    } else {
+      clk->SetppmFromNTP();
     }
 		clk->SetCenterFrequency(SetFrequency, 10);
 		clk->SetFrequency(0);

@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 sig_atomic_t  running;
-float drivedds=0.1;          //drive level
 
 #define PROGRAM_VERSION "0.2"
 
@@ -21,7 +20,8 @@ Usage:\nsendiq [-i File Input][-s Samplerate][-l] [-f Frequency] [-h Harmonic nu
 -f float      central frequency Hz(50 kHz to 1500 MHz),\n\
 -m int        shared memory token,\n\
 -d            dds mode,\n\
--p            power level (0.00 to 7.00),\n\
+-p            ppm clock correction,\n\
+-a            power level (0.00 to 7.00),\n\
 -l            loop mode for file input\n\
 -h            Use harmonic number n\n\
 -t            IQ type (i16 default) {i16,u8,float,double}\n\
@@ -54,6 +54,10 @@ int main(int argc, char* argv[])
 	enum {typeiq_i16,typeiq_u8,typeiq_float,typeiq_double};
 	int InputType=typeiq_i16;
 	int Decimation=1;
+
+  bool ppmSet = false;
+	float ppm = 0.0;
+  float drivedds=0.1;          //drive level
         
 	while(1)
 	{
@@ -74,7 +78,11 @@ int main(int argc, char* argv[])
 		case 'd': // dds mode
 			fdds=true;
 			break;
-		case 'p': // driver level (power)
+    case 'p':
+			ppm=atof(optarg);
+      ppmSet = true;
+      break;
+		case 'a': // driver level (power)
 			drivedds=atof(optarg);
 			if (drivedds<0.0) {drivedds=0.0;}
 			if (drivedds>7.0) {drivedds=7.0;}
@@ -164,7 +172,12 @@ int main(int argc, char* argv[])
 
 	#define IQBURST 4000
 	int FifoSize=IQBURST*4;
-	iqdmasync iqtest(SetFrequency,SampleRate,14,FifoSize,MODE_IQ);
+  float * ppmPtr = NULL;
+  if (ppmSet) {
+    ppmPtr = &ppm;
+  }
+  
+	iqdmasync iqtest(SetFrequency,SampleRate,14,FifoSize,MODE_IQ, ppmPtr);
 	iqtest.SetPLLMasterLoop(3,4,0);
 
   if (fdds==true) {           //if instructed to operate as DDS start with carrier, otherwise I/Q mode it is
