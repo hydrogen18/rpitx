@@ -5,10 +5,9 @@
 #include <signal.h>
 #include <stdlib.h>
 
-bool running=true;
+sig_atomic_t running;
 
 #define PROGRAM_VERSION "0.1"
-
 
 void print_usage(void)
 {
@@ -28,20 +27,23 @@ PROGRAM_VERSION);
 static void
 terminate(int num)
 {
-    running=false;
+    running = 0;
 	fprintf(stderr,"Caught signal - Terminating\n");
    
 }
 
 int main(int argc, char* argv[])
 {
+  running = 1;
 	int a;
 	int anyargs = 0;
 	float SetFrequency=434e6;
 	dbg_setlevel(1);
 	bool NotKill=false;
-	float ppm=1000.0;
-	while(1)
+  bool ppmSet = false;
+	float ppm=0.0;
+	
+  while(true)
 	{
 		a = getopt(argc, argv, "f:ehp:");
 	
@@ -62,6 +64,7 @@ int main(int argc, char* argv[])
 			break;
 		case 'p': //ppm
 			ppm=atof(optarg);
+      ppmSet = true;
 			break;	
 		case 'h': // help
 			print_usage();
@@ -70,7 +73,7 @@ int main(int argc, char* argv[])
 		case -1:
         	break;
 		case '?':
-			if (isprint(optopt) )
+			if (isprint(optopt))
  			{
  				fprintf(stderr, "tune: unknown option `-%c'.\n", optopt);
  			}
@@ -91,40 +94,40 @@ int main(int argc, char* argv[])
 
 	
 	
-	 for (int i = 0; i < 64; i++) {
+	 for (int i = 0; i != 64; i++) {
         struct sigaction sa;
 
         std::memset(&sa, 0, sizeof(sa));
         sa.sa_handler = terminate;
-        sigaction(i, &sa, NULL);
+        if (i != SIGSEGV && i != SIGILL && i != SIGFPE && i != SIGABRT) {
+          sigaction(i, &sa, NULL);
+        }
     }
 
 		generalgpio gengpio;
 		gengpio.setpulloff(4);
+
 		padgpio pad;
 		pad.setlevel(7);
-		clkgpio *clk=new clkgpio;
+
+		clkgpio *clk = new clkgpio;
 		clk->SetAdvancedPllMode(true);
-		if(ppm!=1000)	//ppm is set else use ntp
+		if (ppmSet) {	//ppm is set else use ntp
 			clk->Setppm(ppm);
-		clk->SetCenterFrequency(SetFrequency,10);
-		clk->SetFrequency(000);
+    }
+		clk->SetCenterFrequency(SetFrequency, 10);
+		clk->SetFrequency(0);
 		clk->enableclk(4);
 		
-		//clk->enableclk(6);//CLK2 : experimental
-		//clk->enableclk(20);//CLK1 duplicate on GPIO20 for more power ?
 		if(!NotKill)
 		{
-			while(running)
+			while(running != 0)
 			{
 				sleep(1);
 			}
 			clk->disableclk(4);
-			clk->disableclk(20);
-			delete(clk);
-		}
-		else
-		{
+			delete clk;
+		} else {
 			//Ugly method : not destroying clk object will not call destructor thus leaving clk running 
 		}
 	
