@@ -1,32 +1,34 @@
 #!/bin/sh
+set -ve
 
 echo Install rpitx - some package need internet connection -
 
 sudo apt-get update
-sudo apt-get install -y libsndfile1-dev git
-sudo apt-get install -y imagemagick libfftw3-dev
+sudo apt-get install -y libsndfile1-dev git imagemagick libfftw3-dev
 #For rtl-sdr use
-sudo apt-get install -y rtl-sdr buffer
+#sudo apt-get install -y rtl-sdr buffer
+
 # We use CSDR as a dsp for analogs modes thanks to HA7ILM
 git clone https://github.com/simonyiszk/csdr
 patch -i csdrpizero.diff csdr/Makefile
-cd csdr || exit
-make && sudo make install
-cd ../ || exit
+pushd csdr 
+make 
+sudo make install
+popd
 
-cd src || exit
+pushd src 
 git clone https://github.com/F5OEO/librpitx
-cd librpitx/src || exit
+pushd librpitx/src
 make
-cd ../../ || exit
+popd
 
-cd pift8
+pushd pift8
 git clone https://github.com/kgoba/ft8_lib
-cd ../
+popd
 
 make
 sudo make install
-cd .. || exit
+popd
 
 printf "\n\n"
 printf "In order to run properly, rpitx need to modify /boot/config.txt. Are you sure (y/n) "
