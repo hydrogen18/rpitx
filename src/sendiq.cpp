@@ -34,15 +34,15 @@ PROGRAM_VERSION);
 static void
 terminate(int num)
 {
-    running=false;
     fprintf(stderr,"Caught signal - Terminating %x\n",num);
+    running = 0;
    
 }
 
 #define MAX_SAMPLERATE 200000
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
+  running = 1;
   bool  fdds=false;            //operate as a DDS
 	int a;
 	int anyargs = 1;
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
   }
 
 	std::complex<float> CIQBuffer[IQBURST];	
-	while(running)
+	while(running == 1)
 	{
 		
 			int CplxSampleNumber=0;
@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
 						if(loop_mode_flag)
 						fseek ( iqfile , 0 , SEEK_SET );
 						else
-							running=false;
+							running=0;
 					}
 					
 				}
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
 						if (loop_mode_flag) {
   						fseek ( iqfile , 0 , SEEK_SET );
             } else {
-							running=false;
+							running=0;
             }
 					}
 				}
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
 						if(loop_mode_flag)
 						fseek ( iqfile , 0 , SEEK_SET );
 						else
-							running=false;
+							running=0;
 					}
 				}
 				break;	
@@ -291,7 +291,7 @@ int main(int argc, char* argv[])
 						if(loop_mode_flag)
 						fseek ( iqfile , 0 , SEEK_SET );
 						else
-							running=false;
+							running=0;
 					}
 				}
 				break;	

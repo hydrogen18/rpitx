@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
                 
                 
                 
-                iqsender=new iqdmasync(SetFrequency,SampleRate,14,FifoSize,MODE_IQ); 
+                iqsender=new iqdmasync(SetFrequency,SampleRate,14,FifoSize,MODE_IQ, NULL); 
                 iqsender->Setppm(ppmpll);  
             }
             break;

@@ -95,7 +95,7 @@ int main(int argc, char **argv)
         sigaction(i, &sa, NULL);
     }
 
-	fmmod=new iqdmasync(frequency,10000,14,FifoSize,MODE_FREQ_A);	
+	fmmod=new iqdmasync(frequency,10000,14,FifoSize,MODE_FREQ_A, NULL);	
 	ProcessPicture(Excursion);
     close(FilePicture);
 	delete fmmod;
