@@ -4,6 +4,7 @@
 #include <cstring>
 #include <signal.h>
 #include <stdlib.h>
+#include <memory>
 
 sig_atomic_t  running;
 
@@ -184,7 +185,8 @@ int main(int argc, char* argv[]) {
      iqtest.ModeIQ=MODE_FREQ_A;
   }
 
-	std::complex<float> CIQBuffer[IQBURST];	
+        std::unique_ptr<std::complex<float>[]> CIQBuffer;
+        CIQBuffer = std::make_unique<std::complex<float>[]>(IQBURST);
 	while(running == 1)
 	{
 		
@@ -297,7 +299,7 @@ int main(int argc, char* argv[]) {
 				break;	
 			
 		}
-		iqtest.SetIQSamples(CIQBuffer,CplxSampleNumber,Harmonic);
+		iqtest.SetIQSamples(CIQBuffer.get(),CplxSampleNumber,Harmonic);
 	}
 
 	iqtest.stop();

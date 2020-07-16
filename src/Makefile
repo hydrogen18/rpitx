@@ -1,7 +1,7 @@
 all: ../pisstv ../piopera ../pifsq ../pichirp ../sendiq ../tune ../freedv ../dvbrf ../pocsag ../spectrumpaint ../pifmrds ../rpitx ../corel8 ../pift8
 
 CFLAGS	= -Wall -g -O2 -Wno-unused-variable
-CXXFLAGS = -std=c++11 -Wall -g -O2 -Wno-unused-variable
+CXXFLAGS = -std=gnu++17 -Wall -g -O2 -Wno-unused-variable
 LDFLAGS = librpitx/src/librpitx.a -lm -lrt -lpthread
 CCP = c++
 CC = cc
